@@ -61,11 +61,22 @@ public class TlProcessing {
         @Nullable
         public final String packagePrefix;
         public final ClassRef superType;
+        /**
+         * Prefix of the {@code TlSerializer}/{@code TlDeserializer}/{@code TlInfo} triple
+         * which serializes this scheme. Schemes sharing a prefix are serialized by
+         * common classes and therefore must not have colliding constructor ids.
+         */
+        public final String serializationPrefix;
 
         Configuration(String name, @Nullable String packagePrefix, ClassRef superType) {
+            this(name, packagePrefix, superType, "");
+        }
+
+        Configuration(String name, @Nullable String packagePrefix, ClassRef superType, String serializationPrefix) {
             this.name = name;
             this.packagePrefix = packagePrefix;
             this.superType = superType;
+            this.serializationPrefix = serializationPrefix;
         }
     }
 
