@@ -558,10 +558,11 @@ public class SchemaGenerator extends AbstractProcessor {
             if (primitiveSizeof != -1) {
                 sizeOfBlock.addStatement("int $L = payload.$L() != null ? $L : 0", sizeVar, param.formattedName(), primitiveSizeof);
             } else {
-                sizeOfBlock.addStatement("var $1L = payload.$1L()", param.formattedName());
+                String local = localVariable(param);
+                sizeOfBlock.addStatement("var $L = payload.$L()", local, param.formattedName());
                 String sizeMethod = sizeOfMethod(param.type.innerType());
                 sizeOfBlock.addStatement("int $L = $L != null ? " + sizeMethod + " : 0",
-                        sizeVar, param.formattedName(), param.formattedName());
+                        sizeVar, local, local);
             }
         } else {
             String sizeMethod = sizeOfMethod(param);
@@ -752,7 +753,12 @@ public class SchemaGenerator extends AbstractProcessor {
                         }
                     } else {
                         String deser = deserializeMethod(name, param);
-                        typeDeserializer.addCode(".$L(" + deser + ")", param.formattedName());
+                        if (param.formattedName().equals("from")) {
+                            // Builder.from(<type>) copy method makes the call with generic deserialize() ambiguous
+                            typeDeserializer.addCode(".from(($T) (" + deser + "))", mapType(param.type));
+                        } else {
+                            typeDeserializer.addCode(".$L(" + deser + ")", param.formattedName());
+                        }
                     }
 
                     typeDeserializer.ln();
@@ -1223,11 +1229,21 @@ public class SchemaGenerator extends AbstractProcessor {
         };
     }
 
+    // Serializer methods take 'buf' and 'payload' parameters which must not be shadowed
+    private static String localVariable(Parameter param) {
+        String name = param.formattedName();
+        return switch (name) {
+            case "buf", "payload" -> name + "Value";
+            default -> name;
+        };
+    }
+
     private void writeSerializeMethod(MethodRenderer<TopLevelRenderer> renderer, Parameter param) {
         if (param.type.isFlag()) {
-            renderer.addStatement("var $1L = payload.$1L()", param.formattedName());
+            String local = localVariable(param);
+            renderer.addStatement("var $L = payload.$L()", local, param.formattedName());
             String serializeMethod = serializeMethod(param.type.innerType());
-            renderer.addStatement("if ($1L != null) " + serializeMethod, param.formattedName());
+            renderer.addStatement("if ($1L != null) " + serializeMethod, local);
         } else if (param.type.isVector()) {
             String innerTypeRaw = param.type.innerType().rawType;
             String specific = switch (innerTypeRaw.toLowerCase()) {
@@ -1245,8 +1261,9 @@ public class SchemaGenerator extends AbstractProcessor {
                 case "int128", "int256" -> {
                     // writeBytes(ByteBuf) changes reader and writer indexes which may break semantic
                     // But our implementation always return .duplicate() of byte buffer
-                    renderer.addStatement("var $1L = payload.$1L()", param.formattedName());
-                    renderer.addStatement("buf.writeBytes($1L, $1L.readerIndex(), $1L.readableBytes())", param.formattedName());
+                    String local = localVariable(param);
+                    renderer.addStatement("var $L = payload.$L()", local, param.formattedName());
+                    renderer.addStatement("buf.writeBytes($1L, $1L.readerIndex(), $1L.readableBytes())", local);
                 }
                 case "Bool" -> renderer.addStatement("buf.writeIntLE(payload.$L() ? BOOL_TRUE_ID : BOOL_FALSE_ID)", param.formattedName());
                 case "string" -> renderer.addStatement("serializeString(buf, payload.$L())", param.formattedName());
