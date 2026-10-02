@@ -25,12 +25,16 @@ module telegram4j.tl {
 
 	exports telegram4j.tl;
 	exports telegram4j.tl.account;
+	exports telegram4j.tl.aicompose;
 	exports telegram4j.tl.api;
 	exports telegram4j.tl.auth;
 	exports telegram4j.tl.bots;
 	exports telegram4j.tl.channels;
 	exports telegram4j.tl.chatlists;
+	exports telegram4j.tl.communities;
 	exports telegram4j.tl.contacts;
+	exports telegram4j.tl.ephemeral;
+	exports telegram4j.tl.fragment;
 	exports telegram4j.tl.help;
 	exports telegram4j.tl.json;
 	exports telegram4j.tl.messages;
@@ -38,14 +42,19 @@ module telegram4j.tl {
 	exports telegram4j.tl.payments;
 	exports telegram4j.tl.phone;
 	exports telegram4j.tl.photos;
+	exports telegram4j.tl.premium;
 	exports telegram4j.tl.request;
 	exports telegram4j.tl.request.account;
+	exports telegram4j.tl.request.aicompose;
 	exports telegram4j.tl.request.auth;
 	exports telegram4j.tl.request.bots;
 	exports telegram4j.tl.request.channels;
 	exports telegram4j.tl.request.chatlists;
+	exports telegram4j.tl.request.communities;
 	exports telegram4j.tl.request.contacts;
+	exports telegram4j.tl.request.ephemeral;
 	exports telegram4j.tl.request.folders;
+	exports telegram4j.tl.request.fragment;
 	exports telegram4j.tl.request.help;
 	exports telegram4j.tl.request.langpack;
 	exports telegram4j.tl.request.messages;
@@ -53,6 +62,8 @@ module telegram4j.tl {
 	exports telegram4j.tl.request.payments;
 	exports telegram4j.tl.request.phone;
 	exports telegram4j.tl.request.photos;
+	exports telegram4j.tl.request.premium;
+	exports telegram4j.tl.request.smsjobs;
 	exports telegram4j.tl.request.stats;
 	exports telegram4j.tl.request.stickers;
 	exports telegram4j.tl.request.stories;
@@ -60,6 +71,7 @@ module telegram4j.tl {
 	exports telegram4j.tl.request.upload;
 	exports telegram4j.tl.request.users;
 	exports telegram4j.tl.secret;
+	exports telegram4j.tl.smsjobs;
 	exports telegram4j.tl.stats;
 	exports telegram4j.tl.stickers;
 	exports telegram4j.tl.storage;
