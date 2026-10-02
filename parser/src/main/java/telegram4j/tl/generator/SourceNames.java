@@ -57,7 +57,11 @@ public final class SourceNames {
         if (!SourceVersion.isName(name)) {
             switch (name) {
                 // besides the flag, there is also non-flag private:PaidReactionPrivacy
-                case "private" -> name = "true".equals(type) ? "isPrivate" : "privacy";
+                case "private" -> name = switch (String.valueOf(type)) {
+                    case "true" -> "isPrivate";
+                    case "PaidReactionPrivacy" -> "paidReactionPrivacy";
+                    default -> throw new IllegalStateException("Non-flag parameter with java keyword name, type: " + type);
+                };
                 case "default", "static", "public", "final", "short" -> {
                     if (!"true".equals(type)) {
                         throw new IllegalStateException("Non-flag parameter with java keyword name, type: " + type);
