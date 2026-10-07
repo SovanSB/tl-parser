@@ -20,6 +20,7 @@ import telegram4j.tl.generator.renderer.ClassRef;
 import telegram4j.tl.parser.TlTrees;
 import telegram4j.tl.parser.TlTrees.Type.Kind;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -99,6 +100,16 @@ public class TlProcessing {
             var params = tlType.parameters().stream()
                     .map(p -> new Parameter(p.name(), TypeName.parse(config, p.type())))
                     .collect(Collectors.toList());
+
+            // Names of keyword parameters are derived and may coincide with another parameter
+            var formattedNames = new HashSet<String>();
+            for (Parameter p : params) {
+                if (!formattedNames.add(p.formattedName())) {
+                    throw new IllegalStateException("Parameter name clash in " + tlType.name()
+                            + ": " + p.name + " is formatted as " + p.formattedName());
+                }
+            }
+
             TypeNameBase name = TypeNameBase.parse(config, tlType.name(), tlType.kind() == Kind.METHOD);
             TypeName type = TypeName.parse(config, tlType.type());
             return new Type(tlType.kind(), name, tlType.id(), params, type);

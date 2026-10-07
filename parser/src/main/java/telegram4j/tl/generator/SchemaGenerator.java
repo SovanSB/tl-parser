@@ -558,7 +558,7 @@ public class SchemaGenerator extends AbstractProcessor {
             if (primitiveSizeof != -1) {
                 sizeOfBlock.addStatement("int $L = payload.$L() != null ? $L : 0", sizeVar, param.formattedName(), primitiveSizeof);
             } else {
-                String local = localVariable(param);
+                String local = toSafeLocalName(param);
                 sizeOfBlock.addStatement("var $L = payload.$L()", local, param.formattedName());
                 String sizeMethod = sizeOfMethod(param.type.innerType());
                 sizeOfBlock.addStatement("int $L = $L != null ? " + sizeMethod + " : 0",
@@ -1230,7 +1230,7 @@ public class SchemaGenerator extends AbstractProcessor {
     }
 
     // Serializer methods take 'buf' and 'payload' parameters which must not be shadowed
-    private static String localVariable(Parameter param) {
+    private static String toSafeLocalName(Parameter param) {
         String name = param.formattedName();
         return switch (name) {
             case "buf", "payload" -> name + "Value";
@@ -1240,7 +1240,7 @@ public class SchemaGenerator extends AbstractProcessor {
 
     private void writeSerializeMethod(MethodRenderer<TopLevelRenderer> renderer, Parameter param) {
         if (param.type.isFlag()) {
-            String local = localVariable(param);
+            String local = toSafeLocalName(param);
             renderer.addStatement("var $L = payload.$L()", local, param.formattedName());
             String serializeMethod = serializeMethod(param.type.innerType());
             renderer.addStatement("if ($1L != null) " + serializeMethod, local);
@@ -1261,7 +1261,7 @@ public class SchemaGenerator extends AbstractProcessor {
                 case "int128", "int256" -> {
                     // writeBytes(ByteBuf) changes reader and writer indexes which may break semantic
                     // But our implementation always return .duplicate() of byte buffer
-                    String local = localVariable(param);
+                    String local = toSafeLocalName(param);
                     renderer.addStatement("var $L = payload.$L()", local, param.formattedName());
                     renderer.addStatement("buf.writeBytes($1L, $1L.readerIndex(), $1L.readableBytes())", local);
                 }
